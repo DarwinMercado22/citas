@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle Paciente - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="bi bi-person-badge"></i> Detalle del Paciente</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'paciente_listar' %}">Pacientes</a></li>
+                    <li class="breadcrumb-item active">{{ paciente.get_nombre_completo }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="btn-group" role="group">
+                <a href="{% url 'paciente_editar' paciente.pk %}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <a href="{% url 'historia_clinica_detalle' paciente.pk %}" class="btn btn-success">
+                    <i class="bi bi-file-medical"></i> Historia Clínica
+                </a>
+                <a href="{% url 'consulta_crear' paciente.pk %}" class="btn btn-info">
+                    <i class="bi bi-clipboard-plus"></i> Nueva Consulta
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Datos Personales -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person"></i> Datos Personales</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td><strong>Documento:</strong></td>
+                                <td>{{ paciente.get_tipo_documento_display }} - {{ paciente.numero_documento }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nombre Completo:</strong></td>
+                                <td>{{ paciente.get_nombre_completo }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha de Nacimiento:</strong></td>
+                                <td>{{ paciente.fecha_nacimiento|date:"d/m/Y" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Edad:</strong></td>
+                                <td>{{ edad }} años</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Género:</strong></td>
+                                <td>{{ paciente.get_genero_display }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Estado:</strong></td>
+                                <td>
+                                    {% if paciente.activo %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos de Contacto -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-telephone"></i> Datos de Contacto</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td><strong>Teléfono:</strong></td>
+                                <td>{{ paciente.telefono }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Celular:</strong></td>
+                                <td>{{ paciente.celular|default:"No registrado" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td>{{ paciente.email|default:"No registrado" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dirección:</strong></td>
+                                <td>{{ paciente.direccion }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ciudad:</strong></td>
+                                <td>{{ paciente.ciudad }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos Médicos -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> Datos Médicos</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td><strong>Tipo de Sangre:</strong></td>
+                                <td><span class="badge bg-danger fs-6">{{ paciente.tipo_sangre }}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Alergias:</strong></td>
+                                <td>
+                                    {% if paciente.alergias %}
+                                        {{ paciente.alergias }}
+                                    {% else %}
+                                        <em class="text-muted">No registradas</em>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contacto de Emergencia -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="bi bi-shield-exclamation"></i> Contacto de Emergencia</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td><strong>Nombre:</strong></td>
+                                <td>{{ paciente.contacto_emergencia_nombre }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Teléfono:</strong></td>
+                                <td>{{ paciente.contacto_emergencia_telefono }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Parentesco:</strong></td>
+                                <td>{{ paciente.contacto_emergencia_parentesco }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del Sistema -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información del Sistema</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Fecha de Registro:</strong> {{ paciente.fecha_registro|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Última Actualización:</strong> {{ paciente.ultima_actualizacion|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

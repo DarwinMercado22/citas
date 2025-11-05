@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Cita - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="bi bi-calendar-event"></i> Detalle de Cita</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'cita_listar' %}">Citas</a></li>
+                    <li class="breadcrumb-item active">Detalle</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if cita.estado not in 'COMPLETADA,CANCELADA' %}
+            <div class="btn-group" role="group">
+                <a href="{% url 'cita_editar' cita.pk %}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <a href="{% url 'cita_cancelar' cita.pk %}" class="btn btn-danger">
+                    <i class="bi bi-x-circle"></i> Cancelar Cita
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person"></i> Información del Paciente</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td><strong>Nombre:</strong></td>
+                                <td>{{ cita.paciente.get_nombre_completo }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Documento:</strong></td>
+                                <td>{{ cita.paciente.numero_documento }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Edad:</strong></td>
+                                <td>{{ cita.paciente.get_edad }} años</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Teléfono:</strong></td>
+                                <td>{{ cita.paciente.telefono }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tipo de Sangre:</strong></td>
+                                <td><span class="badge bg-danger">{{ cita.paciente.tipo_sangre }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="d-grid">
+                        <a href="{% url 'paciente_detalle' cita.paciente.pk %}" class="btn btn-outline-primary">
+                            <i class="bi bi-eye"></i> Ver Perfil Completo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-badge"></i> Información del Médico</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td><strong>Nombre:</strong></td>
+                                <td>Dr. {{ cita.medico.get_full_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Especialidad:</strong></td>
+                                <td>{{ cita.medico.especialidad|default:"No especificada" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td>{{ cita.medico.email }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Teléfono:</strong></td>
+                                <td>{{ cita.medico.telefono|default:"No registrado" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-event"></i> Detalles de la Cita</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="bi bi-calendar3 text-primary" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2"><strong>Fecha</strong></p>
+                                <h5>{{ cita.fecha|date:"d/m/Y" }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="bi bi-clock text-primary" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2"><strong>Hora</strong></p>
+                                <h5>{{ cita.hora|time:"H:i" }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="bi bi-check-circle text-primary" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2"><strong>Estado</strong></p>
+                                {% if cita.estado == 'PROGRAMADA' %}
+                                    <h5><span class="badge bg-primary">{{ cita.get_estado_display }}</span></h5>
+                                {% elif cita.estado == 'CONFIRMADA' %}
+                                    <h5><span class="badge bg-info">{{ cita.get_estado_display }}</span></h5>
+                                {% elif cita.estado == 'EN_CURSO' %}
+                                    <h5><span class="badge bg-warning">{{ cita.get_estado_display }}</span></h5>
+                                {% elif cita.estado == 'COMPLETADA' %}
+                                    <h5><span class="badge bg-success">{{ cita.get_estado_display }}</span></h5>
+                                {% elif cita.estado == 'CANCELADA' %}
+                                    <h5><span class="badge bg-danger">{{ cita.get_estado_display }}</span></h5>
+                                {% elif cita.estado == 'NO_ASISTIO' %}
+                                    <h5><span class="badge bg-secondary">{{ cita.get_estado_display }}</span></h5>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="bi bi-person-plus text-primary" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2"><strong>Registrado por</strong></p>
+                                <h6>{{ cita.creado_por.get_full_name }}</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <h6 class="text-primary"><i class="bi bi-clipboard"></i> Motivo de la Cita</h6>
+                            <p>{{ cita.motivo }}</p>
+                        </div>
+
+                        {% if cita.observaciones %}
+                        <div class="col-md-12 mb-3">
+                            <h6 class="text-secondary"><i class="bi bi-chat-left-text"></i> Observaciones</h6>
+                            <p>{{ cita.observaciones }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if cita.estado == 'CANCELADA' and cita.motivo_cancelacion %}
+                        <div class="col-md-12">
+                            <div class="alert alert-danger">
+                                <h6 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Motivo de Cancelación</h6>
+                                <p class="mb-0">{{ cita.motivo_cancelacion }}</p>
+                                <small class="text-muted">Cancelada el: {{ cita.fecha_cancelacion|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cambiar Estado -->
+        {% if cita.estado not in 'COMPLETADA,CANCELADA' and user.rol == 'MEDICO' %}
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="bi bi-arrow-repeat"></i> Cambiar Estado de la Cita</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'cita_cambiar_estado' cita.pk %}">
+                        {% csrf_token %}
+                        <div class="row align-items-end">
+                            <div class="col-md-8">
+                                <label class="form-label">Nuevo Estado</label>
+                                <select name="estado" class="form-control">
+                                    <option value="PROGRAMADA" {% if cita.estado == 'PROGRAMADA' %}selected{% endif %}>Programada</option>
+                                    <option value="CONFIRMADA" {% if cita.estado == 'CONFIRMADA' %}selected{% endif %}>Confirmada</option>
+                                    <option value="EN_CURSO" {% if cita.estado == 'EN_CURSO' %}selected{% endif %}>En Curso</option>
+                                    <option value="COMPLETADA" {% if cita.estado == 'COMPLETADA' %}selected{% endif %}>Completada</option>
+                                    <option value="NO_ASISTIO" {% if cita.estado == 'NO_ASISTIO' %}selected{% endif %}>No Asistió</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-warning w-100">
+                                    <i class="bi bi-arrow-repeat"></i> Cambiar Estado
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

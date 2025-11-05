@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Citas del Día - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="bi bi-calendar-day"></i> Citas del Día</h2>
+            <p class="text-muted">{{ fecha|date:"l, d de F de Y" }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'cita_crear' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nueva Cita
+            </a>
+        </div>
+    </div>
+
+    {% if citas %}
+        <div class="row">
+            {% for cita in citas %}
+            <div class="col-md-6 mb-3">
+                <div class="card {% if cita.estado == 'COMPLETADA' %}border-success{% elif cita.estado == 'CANCELADA' %}border-danger{% elif cita.estado == 'EN_CURSO' %}border-warning{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-clock"></i> {{ cita.hora|time:"H:i" }}
+                            </h5>
+                            {% if cita.estado == 'PROGRAMADA' %}
+                                <span class="badge bg-primary">{{ cita.get_estado_display }}</span>
+                            {% elif cita.estado == 'CONFIRMADA' %}
+                                <span class="badge bg-info">{{ cita.get_estado_display }}</span>
+                            {% elif cita.estado == 'EN_CURSO' %}
+                                <span class="badge bg-warning">{{ cita.get_estado_display }}</span>
+                            {% elif cita.estado == 'COMPLETADA' %}
+                                <span class="badge bg-success">{{ cita.get_estado_display }}</span>
+                            {% elif cita.estado == 'CANCELADA' %}
+                                <span class="badge bg-danger">{{ cita.get_estado_display }}</span>
+                            {% elif cita.estado == 'NO_ASISTIO' %}
+                                <span class="badge bg-secondary">{{ cita.get_estado_display }}</span>
+                            {% endif %}
+                        </div>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <i class="bi bi-person"></i> {{ cita.paciente.get_nombre_completo }}
+                        </h6>
+                        <p class="card-text">
+                            <strong><i class="bi bi-person-badge"></i> Médico:</strong> Dr. {{ cita.medico.get_full_name }}<br>
+                            <strong><i class="bi bi-clipboard"></i> Motivo:</strong> {{ cita.motivo|truncatewords:10 }}
+                        </p>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'cita_detalle' cita.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Ver Detalle
+                            </a>
+                            {% if cita.estado not in 'COMPLETADA,CANCELADA' %}
+                            <a href="{% url 'cita_editar' cita.pk %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-calendar-x" style="font-size: 4rem; color: #6c757d;"></i>
+                <h4 class="mt-3">No hay citas programadas para hoy</h4>
+                <p class="text-muted">¡Disfruta tu día libre o programa nuevas citas!</p>
+                <a href="{% url 'cita_crear' %}" class="btn btn-primary mt-3">
+                    <i class="bi bi-plus-circle"></i> Crear Nueva Cita
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancelar Cita - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-x-circle text-danger"></i> Cancelar Cita</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'cita_listar' %}">Citas</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'cita_detalle' cita.pk %}">Detalle</a></li>
+                    <li class="breadcrumb-item active">Cancelar</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Cancelar Cita</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">Información de la Cita</h6>
+                        <p class="mb-1"><strong>Paciente:</strong> {{ cita.paciente.get_nombre_completo }}</p>
+                        <p class="mb-1"><strong>Médico:</strong> Dr. {{ cita.medico.get_full_name }}</p>
+                        <p class="mb-1"><strong>Fecha:</strong> {{ cita.fecha|date:"d/m/Y" }} - {{ cita.hora|time:"H:i" }}</p>
+                        <p class="mb-0"><strong>Motivo:</strong> {{ cita.motivo|truncatewords:15 }}</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Motivo de la Cancelación *</label>
+                            {{ form.motivo_cancelacion }}
+                            {% if form.motivo_cancelacion.errors %}
+                                <div class="text-danger small">{{ form.motivo_cancelacion.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'cita_detalle' cita.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i> Cancelar Cita
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

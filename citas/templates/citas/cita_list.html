@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Citas - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="bi bi-calendar-check"></i> Gestión de Citas</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <div class="btn-group" role="group">
+                <a href="{% url 'citas_del_dia' %}" class="btn btn-info">
+                    <i class="bi bi-calendar-day"></i> Citas del Día
+                </a>
+                <a href="{% url 'cita_crear' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nueva Cita
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Desde</label>
+                    {{ form.fecha_desde }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Hasta</label>
+                    {{ form.fecha_hasta }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Médico</label>
+                    {{ form.medico }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    {{ form.estado }}
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de citas -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cita in citas %}
+                        <tr>
+                            <td><strong>{{ cita.fecha|date:"d/m/Y" }}</strong></td>
+                            <td>{{ cita.hora|time:"H:i" }}</td>
+                            <td>{{ cita.paciente.get_nombre_completo }}</td>
+                            <td>Dr. {{ cita.medico.get_full_name }}</td>
+                            <td>{{ cita.motivo|truncatewords:8 }}</td>
+                            <td>
+                                {% if cita.estado == 'PROGRAMADA' %}
+                                    <span class="badge bg-primary">{{ cita.get_estado_display }}</span>
+                                {% elif cita.estado == 'CONFIRMADA' %}
+                                    <span class="badge bg-info">{{ cita.get_estado_display }}</span>
+                                {% elif cita.estado == 'EN_CURSO' %}
+                                    <span class="badge bg-warning">{{ cita.get_estado_display }}</span>
+                                {% elif cita.estado == 'COMPLETADA' %}
+                                    <span class="badge bg-success">{{ cita.get_estado_display }}</span>
+                                {% elif cita.estado == 'CANCELADA' %}
+                                    <span class="badge bg-danger">{{ cita.get_estado_display }}</span>
+                                {% elif cita.estado == 'NO_ASISTIO' %}
+                                    <span class="badge bg-secondary">{{ cita.get_estado_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center table-actions">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'cita_detalle' cita.pk %}" class="btn btn-outline-info" title="Ver Detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if cita.estado not in 'COMPLETADA,CANCELADA' %}
+                                    <a href="{% url 'cita_editar' cita.pk %}" class="btn btn-outline-primary" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'cita_cancelar' cita.pk %}" class="btn btn-outline-danger" title="Cancelar">
+                                        <i class="bi bi-x-circle"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                <p class="mt-2">No se encontraron citas</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

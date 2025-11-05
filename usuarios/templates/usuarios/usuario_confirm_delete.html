@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Usuario - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-exclamation-triangle text-danger"></i> Eliminar Usuario</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'usuario_listar' %}">Usuarios</a></li>
+                    <li class="breadcrumb-item active">Eliminar</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead">¿Está seguro que desea desactivar el siguiente usuario?</p>
+                    <div class="alert alert-warning">
+                        <strong>Usuario:</strong> {{ usuario.username }}<br>
+                        <strong>Nombre:</strong> {{ usuario.get_full_name }}<br>
+                        <strong>Rol:</strong> {{ usuario.get_rol_display }}
+                    </div>
+                    <p class="text-muted small">Esta acción desactivará el usuario pero no eliminará los registros asociados.</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'usuario_listar' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Confirmar Eliminación
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

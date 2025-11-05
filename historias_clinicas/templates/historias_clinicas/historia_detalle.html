@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block title %}Historia Clínica - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="bi bi-file-medical"></i> Historia Clínica</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'paciente_listar' %}">Pacientes</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'paciente_detalle' paciente.pk %}">{{ paciente.get_nombre_completo }}</a></li>
+                    <li class="breadcrumb-item active">Historia Clínica</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="btn-group" role="group">
+                <a href="{% url 'historia_clinica_editar' paciente.pk %}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Editar Historia
+                </a>
+                {% if user.rol == 'MEDICO' %}
+                <a href="{% url 'consulta_crear' paciente.pk %}" class="btn btn-success">
+                    <i class="bi bi-clipboard-plus"></i> Nueva Consulta
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Información del Paciente -->
+    <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-person-badge"></i> Información del Paciente</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Nombre:</strong> {{ paciente.get_nombre_completo }}
+                </div>
+                <div class="col-md-3">
+                    <strong>Documento:</strong> {{ paciente.numero_documento }}
+                </div>
+                <div class="col-md-2">
+                    <strong>Edad:</strong> {{ paciente.get_edad }} años
+                </div>
+                <div class="col-md-2">
+                    <strong>Tipo de Sangre:</strong> <span class="badge bg-danger">{{ paciente.tipo_sangre }}</span>
+                </div>
+                <div class="col-md-2">
+                    <strong>Género:</strong> {{ paciente.get_genero_display }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Antecedentes -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="bi bi-clipboard-heart"></i> Antecedentes Personales</h6>
+                </div>
+                <div class="card-body">
+                    {% if historia_clinica.antecedentes_personales %}
+                        <p>{{ historia_clinica.antecedentes_personales }}</p>
+                    {% else %}
+                        <p class="text-muted"><em>No registrados</em></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning">
+                    <h6 class="mb-0"><i class="bi bi-people"></i> Antecedentes Familiares</h6>
+                </div>
+                <div class="card-body">
+                    {% if historia_clinica.antecedentes_familiares %}
+                        <p>{{ historia_clinica.antecedentes_familiares }}</p>
+                    {% else %}
+                        <p class="text-muted"><em>No registrados</em></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-capsule"></i> Medicamentos Actuales</h6>
+                </div>
+                <div class="card-body">
+                    {% if historia_clinica.medicamentos_actuales %}
+                        <p>{{ historia_clinica.medicamentos_actuales }}</p>
+                    {% else %}
+                        <p class="text-muted"><em>No registrados</em></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alergias -->
+    {% if paciente.alergias %}
+    <div class="alert alert-danger" role="alert">
+        <h5 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Alergias</h5>
+        <p class="mb-0">{{ paciente.alergias }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Consultas Médicas -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-clipboard2-pulse"></i> Consultas Médicas</h5>
+        </div>
+        <div class="card-body">
+            {% if consultas %}
+                <div class="accordion" id="consultasAccordion">
+                    {% for consulta in consultas %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ consulta.pk }}">
+                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" 
+                                    data-bs-toggle="collapse" data-bs-target="#collapse{{ consulta.pk }}" 
+                                    aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" 
+                                    aria-controls="collapse{{ consulta.pk }}">
+                                <strong>{{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</strong> 
+                                &nbsp;-&nbsp; Dr. {{ consulta.medico.get_full_name }} 
+                                &nbsp;-&nbsp; {{ consulta.diagnostico|truncatewords:10 }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ consulta.pk }}" 
+                             class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" 
+                             aria-labelledby="heading{{ consulta.pk }}" 
+                             data-bs-parent="#consultasAccordion">
+                            <div class="accordion-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <strong>Fecha:</strong> {{ consulta.fecha_consulta|date:"d/m/Y H:i" }}
+                                            </div>
+                                            <div>
+                                                <strong>Médico:</strong> Dr. {{ consulta.medico.get_full_name }}
+                                                {% if consulta.medico.especialidad %}
+                                                    ({{ consulta.medico.especialidad }})
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <a href="{% url 'consulta_detalle' consulta.pk %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i> Ver Detalle
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Signos Vitales -->
+                                {% if consulta.presion_arterial or consulta.frecuencia_cardiaca or consulta.temperatura %}
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <h6 class="text-primary"><i class="bi bi-heart-pulse"></i> Signos Vitales</h6>
+                                        <div class="row">
+                                            {% if consulta.presion_arterial %}
+                                            <div class="col-md-2">
+                                                <small class="text-muted">Presión Arterial</small><br>
+                                                <strong>{{ consulta.presion_arterial }}</strong>
+                                            </div>
+                                            {% endif %}
+                                            {% if consulta.frecuencia_cardiaca %}
+                                            <div class="col-md-2">
+                                                <small class="text-muted">Frecuencia Cardíaca</small><br>
+                                                <strong>{{ consulta.frecuencia_cardiaca }} ppm</strong>
+                                            </div>
+                                            {% endif %}
+                                            {% if consulta.temperatura %}
+                                            <div class="col-md-2">
+                                                <small class="text-muted">Temperatura</small><br>
+                                                <strong>{{ consulta.temperatura }} °C</strong>
+                                            </div>
+                                            {% endif %}
+                                            {% if consulta.peso %}
+                                            <div class="col-md-2">
+                                                <small class="text-muted">Peso</small><br>
+                                                <strong>{{ consulta.peso }} kg</strong>
+                                            </div>
+                                            {% endif %}
+                                            {% if consulta.altura %}
+                                            <div class="col-md-2">
+                                                <small class="text-muted">Altura</small><br>
+                                                <strong>{{ consulta.altura }} cm</strong>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <h6 class="text-info"><i class="bi bi-clipboard"></i> Motivo de Consulta</h6>
+                                        <p>{{ consulta.motivo_consulta }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <h6 class="text-warning"><i class="bi bi-thermometer"></i> Síntomas</h6>
+                                        <p>{{ consulta.sintomas }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <h6 class="text-danger"><i class="bi bi-file-medical"></i> Diagnóstico</h6>
+                                        <p>{{ consulta.diagnostico }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <h6 class="text-success"><i class="bi bi-capsule"></i> Tratamiento</h6>
+                                        <p>{{ consulta.tratamiento }}</p>
+                                    </div>
+                                    {% if consulta.observaciones %}
+                                    <div class="col-md-12 mb-3">
+                                        <h6 class="text-secondary"><i class="bi bi-chat-left-text"></i> Observaciones</h6>
+                                        <p>{{ consulta.observaciones }}</p>
+                                    </div>
+                                    {% endif %}
+                                    {% if consulta.proxima_cita %}
+                                    <div class="col-md-12">
+                                        <div class="alert alert-info mb-0">
+                                            <i class="bi bi-calendar-check"></i> 
+                                            <strong>Próxima Cita:</strong> {{ consulta.proxima_cita|date:"d/m/Y" }}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Exámenes -->
+                                {% if consulta.examenes.all %}
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <h6 class="text-primary"><i class="bi bi-clipboard-data"></i> Exámenes</h6>
+                                        <ul class="list-group">
+                                            {% for examen in consulta.examenes.all %}
+                                            <li class="list-group-item">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>{{ examen.nombre }}</strong> 
+                                                        <span class="badge bg-secondary">{{ examen.get_tipo_display }}</span>
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            Solicitado: {{ examen.fecha_solicitud|date:"d/m/Y" }}
+                                                            {% if examen.fecha_realizacion %}
+                                                                | Realizado: {{ examen.fecha_realizacion|date:"d/m/Y" }}
+                                                            {% endif %}
+                                                        </small>
+                                                    </div>
+                                                    <a href="{% url 'examen_editar' examen.pk %}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                </div>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-clipboard-x" style="font-size: 3rem;"></i>
+                    <p class="mt-3">No hay consultas registradas para este paciente</p>
+                    {% if user.rol == 'MEDICO' %}
+                    <a href="{% url 'consulta_crear' paciente.pk %}" class="btn btn-primary mt-2">
+                        <i class="bi bi-clipboard-plus"></i> Registrar Primera Consulta
+                    </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Citas - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-calendar-check"></i> Mis Citas</h2>
+            <p class="text-muted">Dr. {{ user.get_full_name }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cita in citas %}
+                        <tr>
+                            <td><strong>{{ cita.fecha|date:"d/m/Y" }}</strong></td>
+                            <td>{{ cita.hora|time:"H:i" }}</td>
+                            <td>{{ cita.paciente.get_nombre_completo }}</td>
+                            <td>{{ cita.motivo|truncatewords:10 }}</td>
+                            <td>
+                                {% if cita.estado == 'PROGRAMADA' %}
+                                    <span class="badge bg-primary">{{ cita.get_estado_display }}</span>
+                                {% elif cita.estado == 'CONFIRMADA' %}
+                                    <span class="badge bg-info">{{ cita.get_estado_display }}</span>
+                                {% elif cita.estado == 'EN_CURSO' %}
+                                    <span class="badge bg-warning">{{ cita.get_estado_display }}</span>
+                                {% elif cita.estado == 'COMPLETADA' %}
+                                    <span class="badge bg-success">{{ cita.get_estado_display }}</span>
+                                {% elif cita.estado == 'CANCELADA' %}
+                                    <span class="badge bg-danger">{{ cita.get_estado_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'cita_detalle' cita.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> Ver
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                <p class="mt-2">No tienes citas programadas</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Usuarios - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="bi bi-person-badge"></i> Gestión de Usuarios</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{% url 'usuario_crear' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nuevo Usuario
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, usuario, cédula..." value="{{ busqueda }}">
+                </div>
+                <div class="col-md-4">
+                    <select name="rol" class="form-control">
+                        <option value="">Todos los roles</option>
+                        {% for value, label in roles %}
+                            <option value="{{ value }}" {% if rol == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Nombre Completo</th>
+                            <th>Cédula</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Especialidad</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td><strong>{{ usuario.username }}</strong></td>
+                            <td>{{ usuario.get_full_name }}</td>
+                            <td>{{ usuario.cedula }}</td>
+                            <td>{{ usuario.email }}</td>
+                            <td><span class="badge bg-primary badge-role">{{ usuario.get_rol_display }}</span></td>
+                            <td>{{ usuario.especialidad|default:"-" }}</td>
+                            <td>
+                                {% if usuario.activo %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center table-actions">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'usuario_editar' usuario.pk %}" class="btn btn-outline-primary" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'usuario_eliminar' usuario.pk %}" class="btn btn-outline-danger" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                <p class="mt-2">No se encontraron usuarios</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

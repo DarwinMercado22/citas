@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-speedometer2"></i> Dashboard</h2>
+            <p class="text-muted">Bienvenido, {{ user.get_full_name }} - {{ user.get_rol_display }}</p>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card border-left-primary h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Pacientes
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ total_pacientes }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card border-left-success h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Médicos Activos
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ total_medicos }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-person-badge text-success" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card border-left-info h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Citas Hoy
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ citas_hoy.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-calendar-day text-info" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card border-left-warning h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Citas Próximas (7 días)
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ citas_proximas.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-calendar-check text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Citas de Hoy -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-calendar-day"></i> Citas de Hoy</h5>
+                    <a href="{% url 'citas_del_dia' %}" class="btn btn-light btn-sm">Ver Todas</a>
+                </div>
+                <div class="card-body">
+                    {% if citas_hoy %}
+                        <div class="list-group">
+                            {% for cita in citas_hoy|slice:":5" %}
+                            <a href="{% url 'cita_detalle' cita.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="bi bi-clock"></i> {{ cita.hora|time:"H:i" }} - {{ cita.paciente.get_nombre_completo }}
+                                    </h6>
+                                    {% if cita.estado == 'PROGRAMADA' %}
+                                        <small><span class="badge bg-primary">{{ cita.get_estado_display }}</span></small>
+                                    {% elif cita.estado == 'CONFIRMADA' %}
+                                        <small><span class="badge bg-info">{{ cita.get_estado_display }}</span></small>
+                                    {% elif cita.estado == 'EN_CURSO' %}
+                                        <small><span class="badge bg-warning">{{ cita.get_estado_display }}</span></small>
+                                    {% elif cita.estado == 'COMPLETADA' %}
+                                        <small><span class="badge bg-success">{{ cita.get_estado_display }}</span></small>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-1 text-muted small">
+                                    <i class="bi bi-person-badge"></i> Dr. {{ cita.medico.get_full_name }}
+                                </p>
+                                <small class="text-muted">{{ cita.motivo|truncatewords:10 }}</small>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
+                            <p class="mt-2">No hay citas programadas para hoy</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Citas Próximas -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Próximas Citas</h5>
+                    <a href="{% url 'cita_listar' %}" class="btn btn-light btn-sm">Ver Todas</a>
+                </div>
+                <div class="card-body">
+                    {% if citas_proximas %}
+                        <div class="list-group">
+                            {% for cita in citas_proximas %}
+                            <a href="{% url 'cita_detalle' cita.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="bi bi-calendar3"></i> {{ cita.fecha|date:"d/m/Y" }} - {{ cita.hora|time:"H:i" }}
+                                    </h6>
+                                    <small><span class="badge bg-primary">{{ cita.get_estado_display }}</span></small>
+                                </div>
+                                <p class="mb-1"><strong>{{ cita.paciente.get_nombre_completo }}</strong></p>
+                                <small class="text-muted">
+                                    <i class="bi bi-person-badge"></i> Dr. {{ cita.medico.get_full_name }}
+                                </small>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
+                            <p class="mt-2">No hay citas próximas programadas</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Consultas Recientes -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-clipboard2-pulse"></i> Consultas Recientes</h5>
+                </div>
+                <div class="card-body">
+                    {% if consultas_recientes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Paciente</th>
+                                        <th>Médico</th>
+                                        <th>Diagnóstico</th>
+                                        <th class="text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for consulta in consultas_recientes %}
+                                    <tr>
+                                        <td>{{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</td>
+                                        <td>{{ consulta.historia_clinica.paciente.get_nombre_completo }}</td>
+                                        <td>Dr. {{ consulta.medico.get_full_name }}</td>
+                                        <td>{{ consulta.diagnostico|truncatewords:10 }}</td>
+                                        <td class="text-center">
+                                            <a href="{% url 'consulta_detalle' consulta.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i> Ver
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-clipboard-x" style="font-size: 3rem;"></i>
+                            <p class="mt-2">No hay consultas recientes</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Accesos Rápidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'paciente_crear' %}" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="bi bi-person-plus" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2">Nuevo Paciente</p>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'cita_crear' %}" class="btn btn-outline-success btn-lg w-100">
+                                <i class="bi bi-calendar-plus" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2">Nueva Cita</p>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'paciente_listar' %}" class="btn btn-outline-info btn-lg w-100">
+                                <i class="bi bi-search" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2">Buscar Paciente</p>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'reportes' %}" class="btn btn-outline-warning btn-lg w-100">
+                                <i class="bi bi-file-earmark-bar-graph" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2">Reportes</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 4px solid #4e73df !important;
+    }
+    .border-left-success {
+        border-left: 4px solid #1cc88a !important;
+    }
+    .border-left-info {
+        border-left: 4px solid #36b9cc !important;
+    }
+    .border-left-warning {
+        border-left: 4px solid #f6c23e !important;
+    }
+</style>
+{% endblock %}

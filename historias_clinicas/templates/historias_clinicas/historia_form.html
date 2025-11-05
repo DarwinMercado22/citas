@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Historia Clínica - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-file-medical"></i> Editar Historia Clínica</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'paciente_listar' %}">Pacientes</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'historia_clinica_detalle' paciente.pk %}">Historia Clínica</a></li>
+                    <li class="breadcrumb-item active">Editar</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Info del Paciente -->
+    <div class="alert alert-info">
+        <strong><i class="bi bi-person-badge"></i> Paciente:</strong> {{ paciente.get_nombre_completo }} 
+        - <strong>Documento:</strong> {{ paciente.numero_documento }}
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Antecedentes Médicos</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-clipboard-heart"></i> Antecedentes Personales</label>
+                            {{ form.antecedentes_personales }}
+                            <small class="form-text text-muted">Enfermedades previas, cirugías, hospitalizaciones</small>
+                            {% if form.antecedentes_personales.errors %}
+                                <div class="text-danger small">{{ form.antecedentes_personales.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-people"></i> Antecedentes Familiares</label>
+                            {{ form.antecedentes_familiares }}
+                            <small class="form-text text-muted">Enfermedades hereditarias en la familia</small>
+                            {% if form.antecedentes_familiares.errors %}
+                                <div class="text-danger small">{{ form.antecedentes_familiares.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-capsule"></i> Medicamentos Actuales</label>
+                            {{ form.medicamentos_actuales }}
+                            <small class="form-text text-muted">Medicamentos que toma actualmente el paciente</small>
+                            {% if form.medicamentos_actuales.errors %}
+                                <div class="text-danger small">{{ form.medicamentos_actuales.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'historia_clinica_detalle' paciente.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

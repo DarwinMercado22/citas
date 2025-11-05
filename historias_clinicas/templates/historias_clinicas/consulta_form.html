@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - Sistema Hospital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-clipboard-plus"></i> {{ titulo }}</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'paciente_listar' %}">Pacientes</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'historia_clinica_detalle' paciente.pk %}">Historia Clínica</a></li>
+                    <li class="breadcrumb-item active">{{ titulo }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Info del Paciente -->
+    <div class="alert alert-info">
+        <strong><i class="bi bi-person-badge"></i> Paciente:</strong> {{ paciente.get_nombre_completo }} 
+        - <strong>Edad:</strong> {{ paciente.get_edad }} años
+        - <strong>Tipo de Sangre:</strong> <span class="badge bg-danger">{{ paciente.tipo_sangre }}</span>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Signos Vitales -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> Signos Vitales</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Presión Arterial</label>
+                                {{ form.presion_arterial }}
+                                {% if form.presion_arterial.errors %}
+                                    <div class="text-danger small">{{ form.presion_arterial.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Frecuencia Cardíaca</label>
+                                {{ form.frecuencia_cardiaca }}
+                                {% if form.frecuencia_cardiaca.errors %}
+                                    <div class="text-danger small">{{ form.frecuencia_cardiaca.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Temperatura</label>
+                                {{ form.temperatura }}
+                                {% if form.temperatura.errors %}
+                                    <div class="text-danger small">{{ form.temperatura.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Peso</label>
+                                {{ form.peso }}
+                                {% if form.peso.errors %}
+                                    <div class="text-danger small">{{ form.peso.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Altura</label>
+                                {{ form.altura }}
+                                {% if form.altura.errors %}
+                                    <div class="text-danger small">{{ form.altura.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de la Consulta -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-clipboard2-pulse"></i> Información de la Consulta</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Motivo de Consulta *</label>
+                                {{ form.motivo_consulta }}
+                                {% if form.motivo_consulta.errors %}
+                                    <div class="text-danger small">{{ form.motivo_consulta.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Síntomas *</label>
+                                {{ form.sintomas }}
+                                {% if form.sintomas.errors %}
+                                    <div class="text-danger small">{{ form.sintomas.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Diagnóstico *</label>
+                                {{ form.diagnostico }}
+                                {% if form.diagnostico.errors %}
+                                    <div class="text-danger small">{{ form.diagnostico.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tratamiento *</label>
+                                {{ form.tratamiento }}
+                                {% if form.tratamiento.errors %}
+                                    <div class="text-danger small">{{ form.tratamiento.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Observaciones</label>
+                                {{ form.observaciones }}
+                                {% if form.observaciones.errors %}
+                                    <div class="text-danger small">{{ form.observaciones.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Próxima Cita</label>
+                                {{ form.proxima_cita }}
+                                {% if form.proxima_cita.errors %}
+                                    <div class="text-danger small">{{ form.proxima_cita.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'historia_clinica_detalle' paciente.pk %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Guardar Consulta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
